@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en"xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>菜单管理页面</title>
+    <link rel="stylesheet" href="/layui/lib/layui-v2.5.5/css/layui.css" media="all">
+    <link rel="stylesheet" href="/layui/css/public.css" media="all">
+    <style>
+        .layui-btn:not(.layui-btn-lg ):not(.layui-btn-sm):not(.layui-btn-xs) {
+            height: 34px;
+            line-height: 34px;
+            padding: 0 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="layuimini-container">
+        <button class="layui-btn" id="addTopMenu">添加一级菜单</button>
+        <div class="layui-btn-group">
+            <button class="layui-btn" id="btn-expand">全部展开</button>
+            <button class="layui-btn layui-btn-normal" id="btn-fold">全部折叠</button>
+        </div>
+        <table id="demoTreeTable1" class="layui-table" lay-filter="munu-table"></table>
+    </div>
+</div>
+</div>
+<!-- 操作列 -->
+<script type="text/html" id="demoTreeTableBar1">
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">修改</a>
+    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="addChild">添加子菜单</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script type="text/html" id="visibletpl">
+    {{# if (d.visible == 0) { }}
+    <a class="layui-btn layui-btn-normal layui-btn-xs">显示</a>
+    {{# } else { }}
+    <a class="layui-btn layui-btn-primary layui-btn-xs">隐藏</a>
+    {{# } }}
+</script>
+
+<script src="/layui/lib/layui-v2.5.5/layui.js" charset="utf-8"></script>
+<script src="/layui/js/lay-config.js?v=1.0.4" charset="utf-8"></script>
+<script>
+    layui.use(['table', 'treeTable','layer'], function () {
+        var $ = layui.jquery;
+        var table = layui.table;
+        var layer = layui.layer;
+        var treeTable = layui.treeTable;
+
+        var insTb = treeTable.render({
+            elem: '#demoTreeTable1',
+            toolbar: '#toolbarDemo',
+            tree: {
+                iconIndex: 0,// 折叠图标显示在第几列
+                idName: "id",
+                childName: "child",
+                openName: "child"  // 是否默认展开的字段名
+            },
+            cols: [
+                {field: 'title', title: '菜单名称', minWidth: 200},
+                {field: 'sort', title: '排序', width: 60, align:"center"},
+                {field: 'href', title: '链接地址', minWidth: 200, align:"center"},
+                {field: 'visible', title: '显示', minWidth: 80, align:"center", templet:"#visibletpl"},
+                {align: 'center', toolbar: '#demoTreeTableBar1', title: '操作', minWidth: 350, align:"center"}
+            ],
+            reqData: function(data, callback) {
+                // 在这里写ajax请求，通过callback方法回调数据
+                $.get('/admin/menu/listMenuAct', function (res) {
+                    callback(res.data);  // 参数是数组类型
+                });
+            },
+            style: 'margin-top:0;'
+        });
+        //监听工具条
+        treeTable.on('tool(demoTreeTable1)', function (obj) {
+            var data = obj.data;  // 获得当前行数据
+            var event = obj.event; // 获得lay-event对应的值
+            if (event == 'del') {
+                var lock=false;//默认未锁定
+                layer.confirm('确定删除该条菜单么？', function (index) {
+                    if (!lock){
+                        lock=true;
+                        $.ajax({
+                            url:"/admin/menu/deleteMenuAct",
+                            type:"post",
+                            data:{id:data.id},
+                            dataType:"json",
+                            success: function(data) {
+                                if (data.code == 1) {
+                                    layer.msg(data.msg, {
+                                        shade:[0.2,'#fff'],
+                                        time: 1000
+                                    }, function () {
+                                        obj.del(); // 删除对应行，并更新缓存
+                                    });
+                                } else {
+                                    var index = layer.alert(data.msg, {
+                                        title:"提示"
+                                    });
+                                }
+
+                            }
+                        });
+                    }
+                    layer.close(index);
+                });
+            }
+            else if (event == 'edit') {
+                var index = layer.open({
+                    title: '编辑菜单',
+                    type: 2,
+                    shade: 0.2,
+                    maxmin:true,
+                    shadeClose: true,
+                    area: ['100%', '100%'],
+                    content: '/admin/menu/editMenu/'+data.id,
+                });
+                $(window).on("resize", function () {
+                    layer.full(index);
+                });
+                // obj.update({title: 'newname'});
+            } else if (event == 'addChild') {
+                var index = layer.open({
+                    title: '添加子菜单',
+                    type: 2,
+                    shade: 0.2,
+                    maxmin:true,
+                    shadeClose: true,
+                    area: ['100%', '100%'],
+                    content: '/admin/menu/addMenu',
+                    success: function(layero, index){
+                        //传值给iframe页面
+                        layer.getChildFrame('#pid', index).val(data.id);
+                    }
+                });
+                $(window).on("resize", function () {
+                    layer.full(index);
+                });
+            }
+        });
+        //添加一级菜单
+        $('#addTopMenu').click(function () {
+            var index = layer.open({
+                title: '添加一级菜单',
+                type: 2,
+                shade: 0.2,
+                maxmin:true,
+                shadeClose: true,
+                area: ['100%', '100%'],
+                content: '/admin/menu/addMenu',
+                success: function(layero, index){
+                    /*layer.getChildFrame('#pid', index).val(0);*/
+                }
+            });
+            $(window).on("resize", function () {
+                //layer.full()、layer.min()、layer.restore() - 手工执行最大小化
+                layer.full(index);
+            });
+        });
+
+        $('#btn-expand').click(function () {
+            insTb.expandAll('munu-table');
+        });
+
+        $('#btn-fold').click(function () {
+            insTb.foldAll('munu-table');
+        });
+
+        setTimeout(function () {
+            $('body').children('.page-loading').hide();
+            $('body').removeClass('page-no-scroll');
+        }, 150);
+
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>修改认证</title>
+    <link rel="stylesheet" href="/layui/lib/layui-v2.5.5/css/layui.css" media="all">
+    <style type="text/css">
+        .myrequired:after {
+            content: '*';
+            color: red;
+            position: absolute;
+            margin-left: 4px;
+            font-weight: bold;
+            line-height: 1.8em;
+            top: 6px;
+            right: 5px;
+        }
+
+    </style>
+</head>
+<body>
+<div class="col-md-offset-1 col-md-12" style="background-color: white;">
+    <div class="noti-header">修改认证信息</div>
+    <div class="empty-line"></div>
+    <div id="noti-list-inner">
+        <div class="text-center">
+            <div class="layui-form layuimini-form" lay-filter="CardImageinfo">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">姓名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="name" th:value="${user.name}" class="layui-input layui-disabled">
+                    </div>
+                </div>
+                <div class="layui-upload">
+                    <label class="layui-form-label" style="width: 120px">身份证正面</label>
+                    <input type="hidden" name="identityCardImageUrl" id="identityCardImageUrl" th:value="${cardImage.identityCardImageUrl}!=null?${cardImage.identityCardImageUrl}:''">
+                    <button type="button" class="layui-btn" id="test1">上传</button>
+                    <div class="layui-upload-list">
+                        <img class="layui-upload-img" id="identityUrl" style="width: 100px; height: 100px" th:src="${cardImage.identityCardImageUrl!=null}?${cardImage.identityCardImageUrl}:''">
+                        <p id="demoText"></p>
+                    </div>
+                </div>
+                <div class="layui-upload">
+                    <label class="layui-form-label" style="width: 100px">营业照</label>
+                    <input type="hidden" name="imageUrl" id="imageUrl" th:value="${cardImage.imageUrl}!=null?${cardImage.imageUrl}:''">
+                    <button type="button" class="layui-btn" id="test2">上传</button>
+                    <div class="layui-upload-list">
+                        <img class="layui-upload-img" id="image2" style="width: 100px; height: 100px"  th:src="${cardImage.imageUrl!=null}?${cardImage.imageUrl}:''">
+                        <p id="demoText2"></p>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px;">审核状态</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="sex" value="0" title="通过" th:checked="${cardImage.status == 0}" disabled>
+                        <input type="radio" name="sex" value="1" title="审核中" th:checked="${cardImage.status == 1}" disabled>
+                        <input type="radio" name="sex" value="2" title="未通过" th:checked="${cardImage.status == 2}" disabled>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <input type="hidden" name="userId" th:value="${user.id}">
+                        <button class="layui-btn" lay-submit lay-filter="saveBtn" id="saveBtn">确认保存</button>
+                    </div>
+                </div>
+            </div>
+            <div class="empty-row"></div>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+    layui.use(['form', 'layer', 'laydate', 'upload'], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            upload = layui.upload,
+            $ = layui.$;
+        form.render();
+        layer.msg("修改需要需要重新审核哦！")
+        layui.use('upload', function(){
+            var $ = layui.jquery
+                ,upload = layui.upload;
+            //普通图片上传
+            var uploadInst = upload.render({
+                elem: '#test1'
+                ,url: '/dashboard/personal/upload'
+                ,before: function(obj){
+                    //预读本地文件示例，不支持ie8
+                    obj.preview(function(index, file, result){
+                        $('#identityUrl').attr('src', result); //图片链接（base64）
+                    });
+                }
+                ,done: function(res){
+                    //如果上传失败
+                    if(res.code > 0){
+                        return layer.msg('上传失败');
+                    } else {
+                        $("#identityCardImageUrl").val(res.imagesUrl)
+                    }
+                    //上传成功
+                }
+                ,error: function(){
+                    //演示失败状态，并实现重传
+                    var demoText = $('#demoText');
+                    demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                    demoText.find('.demo-reload').on('click', function(){
+                        uploadInst.upload();
+                    });
+                }
+            });
+            var uploadInst2 = upload.render({
+                elem: '#test2'
+                ,url: '/dashboard/personal/upload'
+                ,before: function(obj){
+                    //预读本地文件示例，不支持ie8
+                    obj.preview(function(index, file, result){
+                        $('#image2').attr('src', result); //图片链接（base64）
+                    });
+                }
+                ,done: function(res){
+                    //如果上传失败
+                    if(res.code > 0){
+                        return layer.msg('上传失败');
+                    } else {
+                        $("#imageUrl").val(res.imagesUrl)
+                    }
+                    //上传成功
+                }
+                ,error: function(){
+                    //演示失败状态，并实现重传
+                    var demoText = $('#demoText2');
+                    demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                    demoText.find('.demo-reload').on('click', function(){
+                        uploadInst2.upload();
+                    });
+                }
+            });
+        });
+
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+            $.ajax({
+                url: "/dashboard/personal/editCardImagesAct",
+                type: "post",
+                data: data.field,
+                dataType: "json",
+                success: function (data) {
+                    var index;
+                    if (data.code == 0) {
+                        layer.msg(data.msg, {
+                            shade: [0.2, '#fff'],
+                            time: 1000,
+                        }, function () {
+                            window.location.href = "/dashboard/personal"
+                        })
+                    } else {
+                        layer.msg(data.msg, {
+                            shade: [0.2, '#fff'],
+                            time: 1000
+                        })
+                    }
+
+                }
+            });
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

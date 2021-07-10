@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.baoge.dao.RoleDao">
+
+    <!--查询所有角色-->
+    <select id="listRole" resultType="com.baoge.entity.Role">
+            SELECT * FROM role
+    </select>
+
+    <!--根据用户id查询角色列表-->
+    <select id="getRoleListByUserId" resultType="com.baoge.entity.Role">
+        SELECT role.* FROM user_role,role
+        WHERE user_role.user_id=#{userId} AND user_role.role_id=role.id
+    </select>
+
+    <select id="searchRole" resultType="com.baoge.entity.Role">
+        select id,role_name,role_desc from role
+        where 1=1
+        <if test="roleName != null and roleName != ''">
+            and role_name like '%' #{roleName} '%'
+        </if>
+    </select>
+    <insert id="addRole" useGeneratedKeys="true" keyProperty="id">
+        insert into role(role_name,role_desc) values (#{roleName},#{roleDesc})
+    </insert>
+
+    <delete id="deleteRoles" parameterType="java.util.List">
+        delete from role
+        where 1>2 or id in
+        <foreach collection="list"  item="del_ids" open="(" separator="," close=")"  >
+            #{del_ids}
+        </foreach>
+    </delete>
+
+    <delete id="deleteRoleMenus" parameterType="java.util.List">
+        delete from role_menu
+        where 1>2 or role_id in
+        <foreach collection="list"  item="del_ids" open="(" separator="," close=")"  >
+            #{del_ids}
+        </foreach>
+    </delete>
+    <!--删除角色菜单-->
+    <delete id="deleteroleMenu">
+         DELETE FROM role_menu WHERE role_id=#{id}
+    </delete>
+    <!--删除角色-->
+    <delete id="deleteRole">
+         DELETE FROM role WHERE id=#{id}
+    </delete>
+
+    <!--根据id查询role-->
+    <select id="getRoleById" resultType="com.baoge.entity.Role">
+        select id,role_name,role_desc from role where id=#{id}
+    </select>
+    <!--修改角色-->
+    <update id="editRole">
+        update role
+        <set>
+            <if test="roleName != null and roleName!='' ">role_name=#{roleName},</if>
+            role_desc=#{roleDesc}
+        </set>
+
+        where id=#{id}
+    </update>
+
+    <!--根据角色id删除该角色下跌 所有菜单-->
+    <delete id="deleteMenusByRoleId">
+         DELETE FROM role_menu WHERE role_id=#{roleId}
+    </delete>
+
+    <insert id="addRoleMenus">
+        INSERT INTO role_menu(role_id,menu_id) VALUES (#{roleId},#{menuId})
+    </insert>
+</mapper>

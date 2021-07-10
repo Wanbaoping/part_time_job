@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.baoge.dao.JobDao">
+    <resultMap id="jobAndUser" type="com.baoge.entity.Job">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="type" column="type"/>
+        <result property="personnum" column="personnum"/>
+        <result property="place" column="place"/>
+        <result property="information" column="information"/>
+        <result property="salary" column="salary"/>
+        <result property="contact" column="contact"/>
+        <result property="createtime" column="createtime"/>
+        <result property="status" column="status"/>
+        <association property="user" javaType="com.baoge.entity.User">
+            <id property="id" column="uid"/>
+            <result property="name" column="uname"/>
+            <result property="phone" column="phone"/>
+        </association>
+    </resultMap>
+    <select id="getJobsBynews" resultMap="jobAndUser">
+         select j.id,j.name,j.type,j.personnum,j.place,j.salary,u.id as uid,u.name as uname
+        from job j,user u where j. user_id =u.id and j.status=0 order by j.createtime desc  LIMIT 4
+    </select>
+    <select id="getJobPlaceAndType" resultMap="jobAndUser">
+        select j.id,j.name,j.type,j.personnum,j.place,j.information,j.salary,j.contact,j.createtime,j.status,u.id as
+        uid,u.name as uname,phone
+        from job j,user u where j. user_id =u.id and j.status=0
+        <if test="place !=null and place != ''">
+            and place= #{place}
+        </if>
+        <if test="type !=null and type != ''">
+            and type= #{type}
+        </if>
+        order by createtime desc
+    </select>
+    <select id="getJobInfoByid" resultMap="jobAndUser">
+         select j.id,j.name,j.type,j.personnum,j.place,j.information,j.salary,j.contact,j.createtime,j.status,u.id as uid,u.name as uname,phone
+        from job j,user u where j. user_id =u.id  and j.id=#{id} and  j.status=0
+    </select>
+    <select id="getJobInfoByid2" resultMap="jobAndUser">
+         select j.id,j.name,j.type,j.personnum,j.place,j.information,j.salary,j.contact,j.createtime,j.status,u.id as uid,u.name as uname,phone
+        from job j,user u where j. user_id =u.id  and j.id=#{id} and  j.status!=3
+    </select>
+    <select id="getallJob" resultMap="jobAndUser">
+         select j.id,j.name,j.type,j.personnum,j.place,j.information,j.salary,j.contact,j.createtime,j.status,u.id as uid,u.name as uname,phone
+        from job j,user u where j. user_id =u.id and j.user_id=#{userid} and j.status !=3
+    </select>
+    <select id="allJobAct" resultMap="jobAndUser">
+        select j.id,j.name,j.type,j.personnum,j.place,j.information,j.salary,j.contact,j.createtime,j.status,u.id as uid,u.name as uname,phone
+        from job j,user u where j. user_id =u.id
+    </select>
+    <select id="searchJob" resultMap="jobAndUser">
+         select j.id,j.name,j.type,j.personnum,j.place,j.information,j.salary,j.contact,j.createtime,j.status,u.id as uid,u.name as uname,phone
+        from job j,user u where j. user_id =u.id
+        <if test="uname != null and uname != ''">
+            and u.name like '%' #{uname} '%'
+        </if>
+        <if test="name!=null and name !=''">
+            and j.name like '%' #{name} '%'
+        </if>
+        <if test="status !=null">
+            and j.status = #{status}
+        </if>
+    </select>
+    <select id="getJobByUserAndstatus" resultMap="jobAndUser">
+        select j.id,j.name,j.type,j.personnum,j.place,j.information,j.salary,j.contact,j.createtime,j.status,u.id as uid,u.name as uname,phone
+        from job j,user u where j. user_id =u.id and j.user_id=#{userid} and j.status=#{i}
+    </select>
+    <insert id="releaseJob">
+        insert into job(name,type,personnum,place,information,salary,contact,createtime,status,user_id)
+         values (
+            #{job.name},#{job.type},#{job.personnum},#{job.place},#{job.information},#{job.salary},#{job.contact},#{job.createtime},#{job.status},#{user_id}
+         )
+    </insert>
+    <update id="editJob" parameterType="com.baoge.entity.Job">
+        UPDATE job
+        <set>
+            <if test="name != null and name !=''">name=#{name},</if>
+            <if test="type != null and type !=''">type=#{type},</if>
+            <if test="personnum != null and personnum !=''">personnum=#{personnum},</if>
+            <if test="place != null and place !=''">place=#{place},</if>
+            <if test="information != null and information !=''">information=#{information},</if>
+            <if test="salary != null and salary !=''">salary=#{salary},</if>
+            <if test="contact != null and contact !=''">contact=#{contact},</if>
+            <if test="createtime != null">createtime=#{createtime},</if>
+            <if test="status != null and status !=''">status=#{status}</if>
+        </set>
+        where id=#{id}
+    </update>
+    <update id="setStatus">
+          update job set status=#{i} where id=#{id}
+    </update>
+    <delete id="deleteJobById">
+         delete from job where id=#{id}
+    </delete>
+</mapper>

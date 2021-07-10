@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>编辑工作</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/layui/lib/layui-v2.5.5/css/layui.css" media="all">
+    <link rel="stylesheet" href="/layui/css/public.css" media="all">
+    <style>
+        body {
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-form layuimini-form"  lay-filter="editfrom">
+    <div class="layui-form-item">
+        <label class="layui-form-label myrequired" style="width: 100px">兼职名称</label>
+        <div class="layui-input-block">
+            <input type="text" name="name" th:value="${job.name}" lay-verify="required" lay-reqtext="兼职名称不能为空" placeholder="例如外卖" class="layui-input ">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label myrequired" style="width: 100px">兼职类型</label>
+        <div class="layui-input-block">
+            <select name="type" lay-filter="type">
+                <option value="Tutoring"  th:selected="${job.type=='Tutoring'}">家教</option>
+                <option value="waimai" th:selected="${job.type=='waimai'}">外卖</option>
+                <option value="express"  th:selected="${job.type=='express'}">快递</option>
+                <option value="kefu"  th:selected="${job.type=='kefu'}">客服</option>
+                <option value="xiaoshou" th:selected="${job.type=='xiaoshou'}">销售</option>
+                <option value="others" th:selected="${job.type=='others'}">其他</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label myrequired" style="width: 100px">兼职地点</label>
+        <div class="layui-input-block">
+            <select name="place" lay-filter="place">
+                <option value="donghu" th:selected="${job.place=='donghu'}">东湖区</option>
+                <option value="xihu" th:selected="${job.place=='xihu'}">西湖区</option>
+                <option value="qingyunpu" th:selected="${job.place=='qingyunpu'}">青云谱区</option>
+                <option value="wanli" th:selected="${job.place=='wanli'}">湾里区</option>
+                <option value="xinjian" th:selected="${job.place=='xinjian'}">新建区</option>
+                <option value="nanchangxian" th:selected="${job.place=='nanchangxian'}">南昌县</option>
+                <option value="jinxian" th:selected="${job.place=='jinxian'}">进贤县</option>
+                <option value="anyi" th:selected="${job.place=='anyi'}">安义县</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label myrequired" style="width: 100px">所需人数</label>
+        <div class="layui-input-block">
+            <input type="text" name="personnum" th:value="${job.personnum}" lay-verify="required|number" lay-reqtext="所需人数不能为空" placeholder="填数字，例如3"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label myrequired">薪资</label>
+        <div class="layui-input-block">
+            <input type="text" name="salary" th:value="${job.salary}" lay-verify="required" lay-reqtext="薪资不能为空" placeholder="例如：100/天"
+                   class="layui-input ">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label myrequired" style="width: 100px">联系电话</label>
+        <div class="layui-input-block">
+            <input type="text" name="contact" lay-verify="required|phone" lay-reqtext="联系电话不能为空" th:value="${job.contact}"
+                   placeholder="例如:15179760987" class="layui-input ">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label myrequired" style="width: 100px">详细描述</label>
+        <div class="layui-input-block">
+            <textarea placeholder="描述兼职的详细工作时间、地点、要求等" class="layui-textarea" name="information" lay-verify="required"
+                      lay-reqtext="详细描述不能为空"></textarea>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <input type="hidden" name="id" th:value="${job.id}">
+          <!--  <input type="hidden" name="user_id" th:value="${job.user.id}">-->
+            <button class="layui-btn" lay-submit lay-filter="saveBtn">确认保存</button>
+            <button class="layui-btn" id="closeBtn">关闭</button>
+        </div>
+    </div>
+</div>
+</div>
+<script src="/layui/lib/layui-v2.5.5/layui.js" charset="utf-8"></script>
+<script  th:inline="javascript">
+    layui.use(['form'], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            $ = layui.$;
+
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+            var DISABLED = 'layui-btn-disabled';
+            // 增加样式
+            $('.layui-btn').addClass(DISABLED);
+            $.ajax({
+                url: "/dashboard/personal/editJobAct",
+                type: "post",
+                data: data.field,
+                dataType: "json",
+                success: function (data) {
+                    if (data.code == 0) {
+                        layer.msg(data.msg, {
+                            shade: [0.2, '#fff'],
+                            time: 1500
+                        }, function () {
+
+                            window.parent.location.reload();
+                            var iframeIndex = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(iframeIndex);
+
+                        });
+                    } else {
+                        layer.msg(data.msg, {
+                            shade: [0.2, '#fff'],
+                            time: 1000
+                        });
+                    }
+
+                }
+            });
+            return false;
+        });
+
+
+        //关闭
+        $("#closeBtn").click(function () {
+            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+            parent.layer.close(index); //再执行关
+        })
+
+        //表单初始赋值
+        var information = [[${job.information}]];
+        form.val('editfrom', {
+            "information": information
+        })
+    });
+</script>
+</body>
+</html>

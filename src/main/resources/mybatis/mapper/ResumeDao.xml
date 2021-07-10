@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.baoge.dao.ResumeDao">
+    <resultMap id="resumeAndUser" type="com.baoge.entity.Resume">
+        <id property="id" column="id"></id>
+        <result property="schoolname" column="schoolname"></result>
+        <result property="starttime" column="starttime"></result>
+        <result property="endtime" column="endtime"></result>
+        <result property="education" column="education"></result>
+        <result property="major" column="major"></result>
+        <result property="experience" column="experience"></result>
+        <association property="user" javaType="com.baoge.entity.User">
+            <id property="id" column="uid"></id>
+        </association>
+    </resultMap>
+    <select id="getResumeByUserid" resultMap="resumeAndUser">
+        select r.id id,r.schoolname schoolname,r.starttime as starttime,r.endtime as endtime,r.education as education,r.major as major,
+        r.experience as experience,
+        u.id as uid
+        from resume r,user u
+        where  r.userid =u.id and r.userid=#{userid}
+    </select>
+    <!--修改用户-->
+    <update id="editResume" parameterType="com.baoge.entity.Resume">
+        UPDATE resume
+        <set>
+            <if test="schoolname != null">schoolname=#{schoolname},</if>
+            <if test="starttime != null">starttime=#{starttime},</if>
+            <if test="endtime != null">endtime=#{endtime},</if>
+            <if test="education != null">education=#{education},</if>
+            <if test="major != null">major=#{major},</if>
+            <if test="experience != null">experience=#{experience},</if>
+        </set>
+        WHERE id=#{id}
+    </update>
+    <insert id="addResume">
+            INSERT INTO resume(schoolname,starttime,endtime,education,major,experience,userid) values(
+           #{resume.schoolname},#{resume.starttime},#{resume.endtime},#{resume.education},#{resume.major},#{resume.experience},#{userid}
+            )
+    </insert>
+</mapper>

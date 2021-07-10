@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>审核应聘者</title>
+</head>
+<body>
+<div class="col-md-offset-1 col-md-12" style="background-color: white;">
+    <div class="noti-header">审核应聘者</div>
+
+    <div class="empty-line"></div>
+
+    <div id="noti-list-inner">
+        <div class="text-center">
+            <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+
+            <script type="text/html" id="currentTableBar">
+                <a class="layui-btn layui-btn-xs " lay-event="edit"><i class="layui-icon layui-icon-about"></i>应聘者详情</a>
+                <a class="layui-btn layui-btn-xs data-count-edit" lay-event="setsucess"><i class="layui-icon layui-icon-ok"></i>通过</a>
+                <a class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="setfail"><i
+                        class="layui-icon layui-icon-close"></i>拒绝</a>
+            </script>
+        </div>
+        <div class="empty-row"></div>
+    </div>
+</div>
+<script id="statusTpl" type="text/html">
+    {{#  if(d.status == 0){ }}
+    <button type="button" class="layui-btn layui-btn-xs layui-btn-normal">申请通过</button>
+    {{# } else if(d.status == 1){ }}
+    <button type="button" class="layui-btn layui-btn-xs layui-btn-warm">申请中</button>
+    {{# } else if(d.status == 2){ }}
+    <button type="button" class="layui-btn layui-btn-xs layui-btn-danger">申请拒绝</button>
+    {{#  } }}
+</script>
+<script th:inline="javascript">
+    var id = [[${id}]];
+    layui.use(['form', 'table'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            table = layui.table;
+        table.render({
+            elem: '#currentTableId',
+            url: '/dashboard/personal/checkStudentResumeAct/' + id,
+            method: 'post',
+            cols: [
+                [
+                    {field: 'id', fixed: "left", title: 'ID', sort: true},
+                    {field: 'userName', title: '用户名', align: "center"},
+                    {field: 'jobName', title: '兼职名称', align: "center"},
+                    {field: 'status', title: '申请状态', templet: '#statusTpl', align: "center"},
+                    {title: '操作', templet: '#currentTableBar', align: "center", width: 250}
+                ]
+            ],
+            limits: [10, 15, 20, 25, 50, 100],
+            limit: 10,
+            page: true
+        });
+
+        table.on('tool(currentTableFilter)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'edit') {
+                /* window.open('/pijob/' + data.jobId,"_blank");*/
+                var index = layer.open({
+                    title: '简历详情',
+                    type: 2,
+                    shade: 0.2,
+                    maxmin: true,
+                    shadeClose: true,
+                    area: ['60%', '80%'],
+                    content: '/dashboard/personal/showResume/' + data.userId,
+                });
+                $(window).on("resize", function () {
+                    layer.full(index);
+                });
+                return false;
+            } else if (obj.event === 'setsucess') {
+                var lock = false;
+                layer.confirm('确定通过吗？', function (index) {
+                    if (!lock) {
+                        lock = true;
+                        $.ajax({
+                            url: "/dashboard/personal/setResumeSucessStatus",
+                            type: "post",
+                            data: {
+                                status: data.status,
+                                id: data.id
+                            },
+                            dataType: "json",
+                            success: function (data) {
+                                /*console.log(data)*/
+                                if (data.code == 0) {
+                                    layer.msg(data.msg, {
+                                        shade: [0.2, '#fff'],
+                                        time: 1000
+                                    });
+                                } else {
+                                    layer.msg(data.msg, {
+                                        shade: [0.2, '#fff'],
+                                        time: 1000
+                                    },function() {
+                                        table.reload('currentTableId', {
+                                            url: '/dashboard/personal/checkStudentResumeAct/' + id
+                                            , where: {}, //设定异步数据接口的额外参数
+                                            page: {
+                                                curr: 1
+                                            }
+                                        });
+                                    });
+                                }
+                            }
+                        });
+                    }
+                    layer.close(index);
+                });
+            }else if (obj.event === 'setfail') {
+                var lock = false;
+                layer.confirm('确定拒绝吗？', function (index) {
+                    if (!lock) {
+                        lock = true;
+                        $.ajax({
+                            url: "/dashboard/personal/setResumeFailStatus",
+                            type: "post",
+                            data: {
+                                status: data.status,
+                                id: data.id
+                            },
+                            dataType: "json",
+                            success: function (data) {
+                                /*console.log(data)*/
+                                if (data.code == 0) {
+                                    layer.msg(data.msg, {
+                                        shade: [0.2, '#fff'],
+                                        time: 1000
+                                    });
+                                } else {
+                                    layer.msg(data.msg, {
+                                        shade: [0.2, '#fff'],
+                                        time: 1000
+                                    },function() {
+                                        table.reload('currentTableId', {
+                                            url: '/dashboard/personal/checkStudentResumeAct/' + id
+                                            , where: {}, //设定异步数据接口的额外参数
+                                            page: {
+                                                curr: 1
+                                            }
+                                        });
+                                    });
+                                }
+
+                            }
+                        });
+                    }
+                    layer.close(index);
+                });
+            }
+        });
+    });
+
+
+</script>
+</body>
+</html>

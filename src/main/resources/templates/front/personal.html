@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>大学生兼职平台-兼职</title>
+    <!-- Bootstrap -->
+    <link href="./css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <!-- 让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+    <script type="text/javascript" src="./js/respond.min.js" th:src="@{/js/respond.min.js}"></script>
+    <script type="text/javascript" src="./js/html5.min.js" th:src="@{/js/html5.min.js}"></script>
+    <!-- 引入全局配置 -->
+    <link rel="stylesheet" type="text/css" href="./css/oneself/start.css" th:href="@{/css/oneself/start.css}">
+    <!-- 导航条 -->
+    <link rel="stylesheet" href="./css/oneself/navigationbar.css" th:href="@{/css/oneself/navigationbar.css}">
+    <!-- 弹出框 -->
+    <link rel="stylesheet" href="./js/dialog/css/zdialog.css" th:href="@{/js/dialog/css/zdialog.css}">
+    <!-- ptjob.css -->
+    <link rel="stylesheet" href="./css/oneself/pijob.css" th:href="@{/css/oneself/personal.css}">
+    <!-- 媒体查询css -->
+    <link rel="stylesheet" href="./css/oneself/media.css" th:href="@{/css/oneself/media.css}">
+    <link rel="stylesheet" href="/layui/lib/layui-v2.5.5/css/layui.css" media="all">
+    <link rel="stylesheet" href="/layui/lib/font-awesome-4.7.0/css/font-awesome.css">
+</head>
+<body>
+<!-- 头部 -->
+<div class="t_bj">
+    <div class="container heard_div ">
+        <span>为大学生提供优质兼职服务平台！</span>
+        <span style="float:right;position: relative;" class="v-father">
+            <div id="login" th:if="${session.frontuser}==null">
+                    <span class="man" style="color:#ff6700"><i class="glyphicon glyphicon-user"></i></span>
+                    <a style="color:#ccc" class="y-deng"></a>
+                    <a href="/login" style="color:#ccc" class="v-deng">登陆</a>
+                    <a href="/register" class="v-deng"
+                       style="display: inline-block;height:40px;width: 80px;text-align: center;color: #fff;background-color: #ff6700;margin-left: 20px;">立即注册</a>
+            </div>
+            <div id="personal" th:if="${session.frontuser}!=null">
+                <ul class="layui-nav" style="background-color: #2F2F32 !important; font-size: 20px !important;">
+                <li class="layui-nav-item layuimini-setting">
+                <a href="javascript:;">[[${session.frontuser.name}]]</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="/dashboard/personal">个人中心</a></dd>
+                        <dd><a href="/logout">退出登入</a></dd>
+                    </dl>
+                </li>
+                </ul>
+            </div>
+
+        </span>
+    </div>
+</div>
+<!-- 导航条 -->
+<nav class="navbar navbar-default head">
+    <div class="container" style="height:100%">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header heights">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false" style="margin-top:15px">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#" th:href="@{/}" style="margin-top:-15px;">
+                <img alt="Brand" src="./images/logo1.png" th:src="@{/images/logo1.png}">
+            </a>
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav" style="margin-right:0;">
+                <li><a href="/" class="active-head" style="color:#000!important;">首页 <span class="sr-only">(current)</span></a></li>
+                <li><a href="#" th:href="@{/ptjob(place='',type='')}">兼职</a></li>
+                <li><a href="#" th:href="@{/news}">平台公告</a></li>
+                <li><a href="#" th:href="@{/abouts}">关于我们</a></li>
+            </ul>
+            <!-- /.col-lg-6 -->
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+<!-- 内容区 -->
+<!--学生-->
+<div class="container dashboard" th:if="${#lists.contains(session.roleids, '3')}">
+    <div class="row sidebar">
+        <div class="col-md-3 side">
+            <div class="panel-group">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="username-box col-md-9" style="text-align: center">
+                            <p class="username">
+                                [[${session.frontuser.name}]]
+                            </p>
+                            <p class="info">
+                                个人中心
+                                <span class="text-danger" style="color: red">Beta</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        我的工作
+                    </div>
+
+                    <div id="collapse-jobs" class="panel-collapse collapse in" role="tabpanel">
+                        <li class="list-group-item">
+                            <a href="javascript:;" onclick="a('/dashboard/personal/allApplication')">已投递的职位</a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="javascript:;" onclick="a('/dashboard/personal/passApplication')">已通过职位</a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="javascript:;" onclick="a('/dashboard/personal/checkingApplication')">审核中的职位</a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="javascript:;" onclick="a('/dashboard/personal/nopassApplication')">未通过职位</a>
+                        </li>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        修改资料
+                    </div>
+
+                    <div id="collapse-profile" class="panel-collapse collapse in" role="tabpanel">
+
+                        <li class="list-group-item">
+                            <a href="javascript:;" onclick="a('/dashboard/personal/editpassword')">修改密码</a>
+                        </li>
+
+                        <li class="list-group-item">
+                            <a href="javascript:;" onclick="a('/dashboard/personal/editUserinfo')">修改基本信息</a>
+                        </li>
+
+                        <li class="list-group-item">
+                            <a href="javascript:;" onclick="a('/dashboard/personal/resume')">简历信息</a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="javascript:;" onclick="a('/dashboard/personal/studentCardImages')">学生认证</a>
+                        </li>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9 " id="contentTab" >
+        </div>
+    </div>
+</div>
+<!--招聘者-->
+<div class="container dashboard" th:if="${#lists.contains(session.roleids, '2')}">
+    <div class="row sidebar">
+        <div class="col-md-3 side">
+            <div class="panel-group">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="username-box col-md-9" style="text-align: center">
+                            <p class="username">
+                                [[${session.frontuser.name}]]
+                            </p>
+                            <p class="info">
+                                个人中心
+                                <span class="text-danger" style="color: red">Beta</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        我的工作
+                    </div>
+
+                    <div id="collapse-jobs2" class="panel-collapse collapse in" role="tabpanel">
+                        <li class="list-group-item">
+                            <a href="javascript:;" onclick="b('/dashboard/personal/allJob')">已发布的工作</a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="javascript:;" onclick="b('/dashboard/personal/passJob')">已通过工作</a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="javascript:;" onclick="b('/dashboard/personal/checkingJob')">审核中的工作</a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="javascript:;" onclick="b('/dashboard/personal/nopassJob')">未通过的工作</a>
+                        </li>
+
+                        <li class="list-group-item">
+                            <a href="javascript:;" onclick="b('/dashboard/personal/releaseJob')">发布工作</a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="javascript:;" onclick="b('/dashboard/personal/checkStudentResume')">审核应聘者</a>
+                        </li>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        修改资料
+                    </div>
+
+                    <div id="collapse-profile2" class="panel-collapse collapse in" role="tabpanel">
+
+                        <li class="list-group-item">
+                            <a href="javascript:;" onclick="b('/dashboard/personal/editpassword')">修改密码</a>
+                        </li>
+
+                        <li class="list-group-item">
+                            <a href="javascript:;" onclick="b('/dashboard/personal/editUserinfo')">修改基本信息</a>
+                        </li>
+
+                        <li class="list-group-item">
+                            <a href="javascript:;" onclick="b('/dashboard/personal/storeCardImages')">商家证明</a>
+                        </li>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9 " id="contentTab2" >
+        </div>
+    </div>
+</div>
+<!-- 底部-->
+<div class="dibu">
+    <div class="container pad">
+        <div class="dibu_div">
+            <div class="dibu_left">
+                <a href="/abouts" class="col-md-2 col-sm-3 col-xs-4">关于我们</a>
+                <a href="/abouts" class="col-md-2 col-sm-3 col-xs-4">联系我们</a>
+                <a href="/abouts" class="col-md-2 col-sm-3 col-xs-4">帮助中心</a>
+                <a href="/admin/login" class="col-md-2 col-sm-3 col-xs-4"><span>后台</span>管理</a>
+                <span class="col-xs-12">Copyright©2020 大学校园兼职平台 版权所有 </span>
+            </div>
+            <div class="dibu_right">
+                <img src="./images/wechat1.png" alt="" th:src="@{/images/wechat1.png}">
+                <span class="hidden-xs">扫一扫<span class="hidden-sm hidden-md">联系客服</span></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+<script src="./js/jquery-1.12.2.js" th:src="@{/js/jquery-1.12.2.js}"></script>
+<!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+<script src="./js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="/layui/lib/layui-v2.5.5/layui.js" charset="utf-8"></script>
+<script th:inline="javascript">
+    var roleids=[[${session.roleids}]]
+    var frontuser =[[${session.frontuser}]];
+    var frnntuserid=frontuser.id;
+    layui.use(['element', 'layer','form', 'table'], function () {
+        var element = layui.element; //导航的hover效果、二级菜单等功能，需要依赖element模块
+        var layer = layui.layer;
+        var $ = layui.jquery,
+            form = layui.form,
+            table = layui.table;
+        if (roleids.concat('3')) {
+            $("#contentTab").load("/dashboard/personal/allApplication", {id: frnntuserid});
+        }
+        if (roleids.concat('2')){
+            $("#contentTab2").load("/dashboard/personal/allJob", {id: frnntuserid});
+        }
+    });
+    function a(url) {
+        $("#contentTab").load(url,{id:frnntuserid});
+    }
+    function b(url) {
+        $("#contentTab2").load(url,{id:frnntuserid});
+    }
+</script>
+
+</body>
+</html>

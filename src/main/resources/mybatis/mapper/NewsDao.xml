@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.baoge.dao.NewsDao">
+    <select id="getallNews" resultType="com.baoge.entity.News">
+        select * from news order by createtime desc
+    </select>
+    <select id="listNews"  resultType="com.baoge.entity.News">
+        select * from news
+    </select>
+    <insert id="addNews" parameterType="com.baoge.entity.News">
+        INSERT INTO news(title,content,createtime)
+        VALUES (#{title}, #{content},#{createtime})
+    </insert>
+    <delete id="deleteNews" parameterType="java.util.List">
+        delete from news
+        where 1>2 or id in
+        <foreach collection="list"  item="del_ids" open="(" separator="," close=")"  >
+            #{del_ids}
+        </foreach>
+    </delete>
+    <delete id="deleteNew">
+         DELETE FROM news WHERE id=#{id}
+    </delete>
+    <select id="getNewsById" resultType="com.baoge.entity.News">
+        select * from news where id=#{id}
+    </select>
+    <update id="editNews" parameterType="com.baoge.entity.News">
+        UPDATE news
+        <set>
+            <if test="title != null">title=#{title},</if>
+            <if test="content != null and content !=''">content=#{content},</if>
+            <if test="createtime != null">createtime=#{createtime}</if>
+        </set>
+        WHERE id=#{id}
+    </update>
+</mapper>

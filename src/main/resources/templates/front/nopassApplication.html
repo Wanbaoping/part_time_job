@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>未通过职位</title>
+</head>
+<body>
+<div class="col-md-offset-1 col-md-12" style="background-color: white;">
+    <div class="noti-header">已投递的职位</div>
+
+    <div class="empty-line"></div>
+
+    <div id="noti-list-inner">
+        <div class="text-center">
+            <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+
+            <script type="text/html" id="currentTableBar">
+                <a class="layui-btn layui-btn-xs data-count-edit" lay-event="edit"><i class="layui-icon layui-icon-about"></i>工作详情</a>
+                <a class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="delete"><i class="layui-icon"></i>取消申请</a>
+            </script>
+        </div>
+        <div class="empty-row"></div>
+    </div>
+</div>
+<script type="text/html" id="typeTpl">
+    {{#  if(d.jobType == 'Tutoring'){ }}
+    家教
+    {{# } else if(d.jobType == 'waimai'){ }}
+    外卖
+    {{# } else if(d.jobType == 'express'){ }}
+    快递
+    {{# } else if(d.jobType == 'kefu'){ }}
+    客服
+    {{# } else if(d.jobType == 'xiaoshou'){ }}
+    销售
+    {{# } else if(d.jobType == 'others'){ }}
+    其他
+    {{#  } }}
+</script>
+<script type="text/html" id="placeTpl">
+    {{#  if(d.jobPlace == 'donghu'){ }}
+    东湖区
+    {{# } else if(d.jobPlace == 'xihu'){ }}
+    西湖区
+    {{# } else if(d.jobPlace == 'qingyunpu'){ }}
+    青云谱区
+    {{# } else if(d.jobPlace == 'wanli'){ }}
+    湾里区
+    {{# } else if(d.jobPlace == 'xinjian'){ }}
+    新建区
+    {{# } else if(d.jobPlace == 'nanchangxian'){ }}
+    南昌县
+    {{# } else if(d.jobPlace == 'jinxian'){ }}
+    进贤县
+    {{# } else if(d.jobPlace == 'anyi'){ }}
+    安义县
+    {{#  } }}
+</script>
+<script id="statusTpl" type="text/html">
+    {{#  if(d.status == 0){ }}
+    <button type="button" class="layui-btn layui-btn-xs layui-btn-normal">申请成功</button>
+    {{# } else if(d.status == 1){ }}
+    <button type="button" class="layui-btn layui-btn-xs layui-btn-warm">申请中</button>
+    {{# } else if(d.status == 2){ }}
+    <button type="button" class="layui-btn layui-btn-xs layui-btn-danger">申请失败</button>
+    {{#  } }}
+</script>
+<script th:inline="javascript">
+    var id = [[${id}]];
+    layui.use(['form', 'table'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            table = layui.table;
+        table.render({
+            elem: '#currentTableId',
+            url: '/dashboard/personal/nopassApplicationAct/'+id,
+            method:'post',
+            cols: [
+                [
+                    {field: 'id', title: 'ID', sort: true},
+                    {field: 'jobName', title: '职位名', align: "center"},
+                    {field: 'jobType', title: '职位类型',templet: '#typeTpl', align: "center"},
+                    {field: 'jobPlace', title: '工作地点',templet: '#placeTpl',align: "center"},
+                    {field: 'jobSalary', title: '薪水', align: "center"},
+                    {field: 'status', title: '申请状态', templet: '#statusTpl', align: "center"},
+                    {title: '操作', templet: '#currentTableBar', align: "center",width:200}
+                ]
+            ],
+            limits: [10, 15, 20, 25, 50, 100],
+            limit: 10,
+            page: true
+        });
+        table.on('tool(currentTableFilter)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'edit') {
+                window.open('/pijob/' + data.jobId,"_blank");
+                /*                var index = layer.open({
+                                    title: '工作详情',
+                                    type: 2,
+                                    shade: 0.2,
+                                    maxmin: true,
+                                    shadeClose: true,
+                                    area: ['80%', '80%'],
+                                    content: '/pijob/' + data.id,
+                                });
+                                $(window).on("resize", function () {
+                                    layer.full(index);
+                                });*/
+                return false;
+            } else if (obj.event === 'delete') {
+                var lock = false;
+                layer.confirm('确定取消吗？', function (index) {
+                    if (!lock) {
+                        lock = true;
+                        $.ajax({
+                            url: "/application/deletePosition/"+data.id,
+                            type: "post",
+                            data: {status:data.status},
+                            dataType: "json",
+                            success: function (data) {
+                                /*console.log(data)*/
+                                if (data.code == 0) {
+                                    layer.msg(data.msg, {
+                                        shade: [0.2, '#fff'],
+                                        time: 1000
+                                    }, function () {
+                                        obj.del();
+                                    });
+                                } else {
+                                    layer.msg(data.msg, {
+                                        shade: [0.2, '#fff'],
+                                        time: 1000
+                                    });
+                                }
+
+                            }
+                        });
+                    }
+                    layer.close(index);
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>修改简历信息</title>
+    <style type="text/css">
+        .myrequired:after{
+            content: '*';
+            color: red;
+            position: absolute;
+            margin-left: 4px;
+            font-weight: bold;
+            line-height: 1.8em;
+            top: 6px;
+            right: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="col-md-offset-1 col-md-12" style="background-color: white;">
+    <div class="noti-header">修改简历信息</div>
+    <div class="empty-line"></div>
+    <div id="noti-list-inner">
+        <div class="text-center">
+            <div class="layui-form layuimini-form" lay-filter="resumeinfo">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">姓名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="name" th:value="${user.name}" class="layui-input layui-disabled">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">email</label>
+                    <div class="layui-input-block">
+                        <input type="text" th:value="${user.email}" class="layui-input layui-disabled">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">phone</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="phone" th:value="${user.phone}" class="layui-input layui-disabled">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">性别</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="sex" value="0" title="男" th:checked="${user.sex == 0}" disabled>
+                        <input type="radio" name="sex" value="1" title="女" th:checked="${user.sex == 1}" disabled>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label myrequired" style="width: 100px">就读学校</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="schoolname" th:value="${resume.schoolname}" class="layui-input ">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label myrequired" style="width: 100px">入学时间</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="starttime" class="layui-input" id="starttime">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label myrequired" style="width: 100px">毕业时间</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="endtime" class="layui-input" id="endtime">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label myrequired">学历</label>
+                    <div class="layui-input-block">
+                        <select name="education" lay-filter="education">
+                            <option value="本科" th:selected="${resume.education eq '本科'}">本科</option>
+                            <option value="专科" th:selected="${resume.education eq '专科'}">专科</option>
+                            <option value="硕士" th:selected="${resume.education eq '硕士'}">硕士</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label myrequired">专业</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="major" th:value="${resume.major}"
+                               class="layui-input ">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label myrequired" style="width: 100px">工作经验</label>
+                    <div class="layui-input-block">
+                        <textarea placeholder="请输入内容" class="layui-textarea" name="experience">
+                        </textarea>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <div class="layui-input-block">
+                            <input type="hidden" name="id" th:value="${resume.id}">
+                            <button class="layui-btn" lay-submit lay-filter="saveBtn">确认保存</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="empty-row"></div>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+        var boolean = true;
+        var starttime = [[${resume.starttime}]];
+        var endtime = [[${resume.endtime}]];
+        var experience = [[${resume.experience}]]
+    layui.use(['form', 'layer', 'laydate', 'util',], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            laydate = layui.laydate,
+            util = layui.util,
+            $ = layui.$;
+            form.render();
+
+        var startDate = laydate.render({
+            elem: '#starttime',
+            type: 'date',
+            format: 'yyyy-MM-dd',
+            value: util.toDateString(starttime, 'yyyy-MM-dd'),
+            isInitValue: boolean,//是否允许填充初始值，默认为 true
+            max: '2099-12-31',//设置一个默认最大值
+            position: 'fixed',
+            done: function (value, date) {
+                endDate.config.min = {
+                    year: date.year,
+                    month: date.month - 1, //关键
+                    date: date.date
+                };
+            }
+        });
+        var endDate = laydate.render({
+            elem: '#endtime',//选择器结束时间
+            type: 'date',
+            format: 'yyyy-MM-dd',
+            value: util.toDateString(endtime, 'yyyy-MM-dd'),
+            isInitValue: boolean,//是否允许填充初始值，默认为 true
+            min: '1970-1-1',//设置min默认最小值
+            position: 'fixed',
+            done: function (value, date) {
+                startDate.config.max = {
+                    year: date.year,
+                    month: date.month - 1,//关键
+                    date: date.date
+                }
+            }
+        });
+    /*    $("#starttime").onchange(function () {
+            debugger
+            let starttime=$("starttime").val();
+            let endtime=$("endtime").val();
+        })*/
+        //表单初始赋值
+
+            form.val('resumeinfo', {
+                "experience": experience
+            });
+
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+            $.ajax({
+                url: "/dashboard/personal/editResumeAct",
+                type: "post",
+                data: data.field,
+                dataType: "json",
+                success: function (data) {
+                    var index;
+                    if (data.code == 0) {
+                        layer.msg(data.msg, {
+                            shade: [0.2, '#fff'],
+                            time: 1000,
+                        })
+                    } else {
+                        layer.msg(data.msg, {
+                            shade: [0.2, '#fff'],
+                            time: 1000
+                        })
+                    }
+
+                }
+            });
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

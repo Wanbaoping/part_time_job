@@ -1,0 +1,18 @@
+{
+  "menuInfo": [
+    {"id": 1, "title": "常规管理", "icon": "fa fa-home", "href": "", "target": "_self", "pid": 0, "visible": 1},
+    {"id": 12, "title": "系统管理", "icon": "&#xe716;", "href": "role/toRoleManager", "target": "_self", "pid": 1, "visible": 1},
+    {"id": 20, "title": "菜单管理", "icon": "&#xe60f;", "href": "menu/toMenuManager", "target": "_self", "pid": 12, "visible": 1},
+    {"id": 21, "title": "用户管理", "icon": "&#xe770;", "href": "user/toUserManager", "target": "_self", "pid": 12, "visible": 1},
+    {"id": 22, "title": "角色管理", "icon": "&#xe66f;", "href": "role/toRoleManager", "target": "_self", "pid": 12, "visible": 1}
+  ],
+  "homeInfo": {
+    "id": null,
+    "title": "首页",
+    "icon": null,
+    "href": "/welcome",
+    "target": null,
+    "pid": null,
+    "visible": null
+  }
+}

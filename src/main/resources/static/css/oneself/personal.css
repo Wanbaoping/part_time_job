@@ -1,0 +1,52 @@
+.dashboard {
+    margin-top: 42px;
+}
+
+.panel-group {
+    margin-bottom: 20px;
+}
+
+.panel-group .panel {
+    margin-bottom: 0;
+    border-radius: 4px;
+}
+
+.panel-default {
+    border-color: #ddd;
+}
+.panel-default a{
+    color:#337ab7!important;
+}
+a:hover, a:focus{
+   /* color: #ff6700!important;*/
+    text-decoration: none;
+}
+.content.notices {
+    background-color: white;
+    padding-bottom: 30px;
+}
+.noti-header {
+    font-weight: 700;
+    font-size: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #CCC;
+    position: relative;
+    margin-top: 20px;
+    text-align: center;
+}
+.empty-line {
+    height: 20px;
+}
+.empty-row {
+    height: 40px;
+}
+.layuimini-form > .layui-form-item > .myrequired:after {
+    content: '*';
+    color: red;
+    position: absolute;
+    margin-left: 4px;
+    font-weight: bold;
+    line-height: 1.8em;
+    top: 6px;
+    right: 5px;
+}

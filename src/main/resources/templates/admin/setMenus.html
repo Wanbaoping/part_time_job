@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>menu</title>
+    <link rel="stylesheet" href="/layui/lib/layui-v2.5.5/css/layui.css" media="all">
+    <link rel="stylesheet" href="/layui/css/public.css" media="all">
+    <style>
+        .layui-btn:not(.layui-btn-lg ):not(.layui-btn-sm):not(.layui-btn-xs) {
+            height: 34px;
+            line-height: 34px;
+            padding: 0 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <div>
+            <div class="layui-btn-group">
+                <button class="layui-btn" id="setOk">确定</button>
+                <button class="layui-btn" id="closeBtn">关闭</button>
+            </div>
+            <table id="demoTreeTable1" class="layui-table" lay-filter="munu-table"></table>
+        </div>
+    </div>
+</div>
+
+
+<script src="/layui/lib/layui-v2.5.5/layui.js" charset="utf-8"></script>
+<script src="/layui/lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+<script src="/layui/js/lay-config.js?v=1.0.4" charset="utf-8"></script>
+
+<script>
+    layui.use(['layer', 'treeTable'], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var treeTable = layui.treeTable;
+
+        // 渲染表格
+        var insTb = treeTable.render({
+            elem: '#demoTreeTable1',
+            toolbar: '#toolbarDemo',
+            tree: {
+                iconIndex: 2,
+                idName: "id",
+                childName: "child",
+                openName: "child"
+            },
+            cols: [
+                {type: 'checkbox', width: 100},
+                {field: 'id', title: 'ID', width: 60},
+                {field: 'title', title: '名称', minWidth: 350}
+            ],
+            reqData: function(data, callback) {
+                // 在这里写ajax请求，通过callback方法回调数据
+                $.get('/admin/menu/listMenuAct', function (res) {
+                    callback(res.data);  // 参数是数组类型
+                });
+            },
+            style: 'margin-top:0;'
+        });
+
+        // 全部展开
+        $('#setOk').click(function () {
+            var res = insTb.checkStatus();
+            console.log(res);
+            var res_ids = [];
+            for (var i in res) {
+                // if (res[i].isIndeterminate == false) {
+                res_ids.push(res[i].id)
+                // }
+            }
+            var res_ids_str = res_ids.join(',')
+            $.ajax({
+                url:"/admin/role/setMenusAct",
+                type:"post",
+                data:{
+                    menuIds: res_ids_str,
+                    roleId: [[${roleId}]]
+                },
+                dataType:"json",
+                success: function(data) {
+                    var index;
+                    if (data.code == 1) {
+                        index = layer.alert('提交成功', {
+                            title: '提交成功'
+                        }, function () {
+                            // 关闭弹出层
+                            layer.close(index);
+                            var iframeIndex = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(iframeIndex);
+                        });
+                    } else {
+                        index = layer.alert('提交失败', {
+                            title: data.msg
+                        }, function () {
+                            // 关闭弹出层
+                            layer.close(index);
+                            var iframeIndex = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(iframeIndex);
+                        });
+                    }
+
+                }
+            });
+            return false;
+        });
+
+        $(document).on('mouseenter', '*[lay-tips]', function () {
+            layer.tips($(this).attr('lay-tips'), this, {tips: [1, '#FF5722'], time: -1});
+        }).on('mouseleave', '*[lay-tips]', function () {
+            layer.closeAll('tips');
+        });
+
+        var checkedMenuIds = "[[${menuIds}]]"
+        if (checkedMenuIds != "" && checkedMenuIds.length > 0) {
+            setTimeout(function () {
+                insTb.setChecked(checkedMenuIds.split(","));
+            }, 150);
+        }
+
+        setTimeout(function () {
+            $('body').children('.page-loading').hide();
+            $('body').removeClass('page-no-scroll');
+        }, 150);
+
+
+        //关闭
+        $("#closeBtn").click(function() {
+            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+            parent.layer.close(index); //再执行关
+        })
+
+    });
+
+
+
+</script>
+</body>
+</html>

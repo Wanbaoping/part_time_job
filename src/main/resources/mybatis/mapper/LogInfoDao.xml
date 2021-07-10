@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.baoge.dao.LogInfoDao">
+
+    <insert id="addLogInfo">
+        insert into log(login_name,login_ip,login_status,login_msg,login_time)
+         values (#{loginName},#{loginIp},#{loginStatus},#{loginMsg},#{loginTime})
+    </insert>
+    <!--列出全部日志-->
+    <select id="listLogInfo" resultType="com.baoge.entity.LogInfo">
+        select * from log ORDER BY id desc
+    </select>
+
+    <!--搜索日志-->
+    <select id="searchLogInfo" resultType="com.baoge.entity.LogInfo">
+        select * from log
+        <where>
+            <if test="loginName != null and loginName != ''">
+                AND login_name like concat('%', #{loginName}, '%')
+            </if>
+            <if test="loginStatus != null and loginStatus != ''">
+                AND login_status = #{loginStatus}
+            </if>
+            <if test="start_time != null and start_time != ''"><!-- 开始时间检索 -->
+                and date_format(login_time,'%y%m%d') &gt;= date_format(#{start_time},'%y%m%d')
+            </if>
+            <if test="end_time != null and end_time != ''"><!-- 结束时间检索 -->
+                and date_format(login_time,'%y%m%d') &lt;= date_format(#{end_time},'%y%m%d')
+            </if>
+        </where>
+    </select>
+
+    <!--根据id批量删除-->
+    <delete id="deleteLogInfos" parameterType="java.util.List">
+        delete from log
+        where 1>2 or id in
+        <foreach collection="list"  item="del_ids" open="(" separator="," close=")"  >
+            #{del_ids}
+        </foreach>
+    </delete>
+</mapper>

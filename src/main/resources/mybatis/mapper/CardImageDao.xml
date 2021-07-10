@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.baoge.dao.CardImageDao">
+    <select id="getCardImageByUserid" resultType="com.baoge.entity.CardImage">
+        select * from cardimage where user_id=#{id}
+    </select>
+    <insert id="addCardImage">
+        INSERT INTO cardimage(user_id,identity_card_image_url,image_url,status) values
+         (#{cardImage.userId},#{cardImage.identityCardImageUrl},#{cardImage.imageUrl},#{cardImage.status})
+    </insert>
+    <update id="editCardImage" parameterType="com.baoge.entity.CardImage">
+        UPDATE cardimage
+        <set>
+            <if test="identityCardImageUrl != null and identityCardImageUrl !=''">identity_card_image_url=#{identityCardImageUrl},</if>
+            <if test="imageUrl != null and imageUrl !=''">image_url=#{imageUrl},</if>
+            <if test="status != null and status !=''">status=#{status},</if>
+        </set>
+        WHERE user_id=#{userId}
+    </update>
+    <select id="listUserIdCard" resultType="com.baoge.queryvo.CardImageVo">
+        select c.id as id ,c.user_id as userId,c.identity_card_image_url as identityCardImageUrl ,
+        c.image_url as imageUrl,c.status as status,u.name as name,r.role_name rolename,r.id as roleId
+        from user u , cardimage c,user_role ur,role r
+        where u.id=c.user_id and u.id=ur.user_id and ur.role_id=r.id
+    </select>
+    <update id="setStatus">
+        update cardimage set status=#{i} where id=#{id}
+    </update>
+    <select id="searchUserIdCard" resultType="com.baoge.queryvo.CardImageVo">
+        select c.id as id ,c.user_id as userId,c.identity_card_image_url as identityCardImageUrl ,
+        c.image_url as imageUrl,c.status as status,u.name as name,r.role_name rolename,r.id as roleId
+        from user u , cardimage c,user_role ur,role r
+        where u.id=c.user_id and u.id=ur.user_id and ur.role_id=r.id
+        <if test="name != null and name != ''">
+        and u.name like '%' #{name} '%'
+        </if>
+        <if test="roleId!=null and roleId !=''">
+            and r.id = #{roleId}
+        </if>
+        <if test="status !=null">
+            and c.status = #{status}
+        </if>
+    </select>
+</mapper>

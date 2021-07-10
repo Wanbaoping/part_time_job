@@ -1,0 +1,20 @@
+.pi_content {
+    margin-top: 30px;
+    background-color: #fff;
+    padding: 25px 0px 0px;
+
+}
+.status{
+    margin: 20px 0px;
+}
+.type{
+    margin: 15px 0px;
+}
+.describe{
+    word-break: break-all;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    line-height:24px;
+    font-size: 15px;
+    color: #666666;
+}

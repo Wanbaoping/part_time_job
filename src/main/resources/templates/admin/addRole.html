@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/layui/lib/layui-v2.5.5/css/layui.css" media="all">
+    <link rel="stylesheet" href="/layui/css/public.css" media="all">
+    <link rel="stylesheet" href="/layui_ext/dtree/dtree.css">
+    <link rel="stylesheet" href="/layui_ext/dtree/font/dtreefont.css">
+    <style>
+        body {
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-form layuimini-form">
+    <div class="layui-form-item">
+        <label class="layui-form-label required">角色名称</label>
+        <div class="layui-input-block">
+            <input type="text" name="roleName" lay-verify="required" lay-reqtext="角色名称不能为空" placeholder="请输入角色名称" value="" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label ">角色描述</label>
+        <div class="layui-input-block">
+            <input type="text" name="roleDesc"  placeholder="请输入角色描述" value="" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label ">角色权限</label>
+
+        <ul id="menuTree" class="dtree" data-id="null" style="margin-left: 130px;padding-top: 40px"></ul>
+
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="saveBtn">确认保存</button>
+            <button class="layui-btn" id="closeBtn">关闭</button>
+        </div>
+    </div>
+</div>
+<script src="/layui/lib/layui-v2.5.5/layui.js" charset="utf-8"></script>
+<script>
+    var menuTree;
+    layui.extend({
+        dtree: '/layui_ext/dist/dtree'
+    }).use(['form','dtree'], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            dtree=layui.dtree,
+            $ = layui.$;
+
+        // 初始化树
+        DemoTree = dtree.render({
+            elem: "#menuTree",
+            dataStyle: "layuiStyle",  //使用layui风格的数据格式
+            response:{message:"msg",statusCode:0},  //修改response中返回数据的定义
+            checkbar:true,
+            line: true,  // 显示树线
+            checkbarData:"halfChoose",
+            checkbarType: "no-all",
+            initLevel: "1", //默认展开层级为1
+            /*accordion: true, */// 开启手风琴,只会展开一层节点
+            url: "/admin/menu/listTreeMenuAct" // 使用url加载（可与data加载同时存在）
+        });
+        dtree.on("node(menuTree)", function(obj){
+            if(!obj.param.leaf){
+                var $div = obj.dom;
+                DemoTree.clickSpread($div);  //调用内置函数展开节点
+            } else {
+            }
+        });
+
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+
+            var params = DemoTree.getCheckbarNodesParam("menuTree");
+            var paramsString=JSON.stringify(params)
+            var ps=JSON.parse(paramsString)
+            var mids='';
+            /*            $.each(paramsString),function(index,val){
+                            mids += val.nodeId + "-";
+                        }*/
+            ps.forEach(function (val, index) {
+                mids += val.nodeId + ",";
+            });
+            var roleName=data.field.roleName;
+            var roleDesc =data.field.roleDesc;
+            /*console.log(mids)*/
+            var DISABLED = 'layui-btn-disabled';
+            // 增加样式
+            $('.layui-btn').addClass(DISABLED);
+            $.ajax({
+                url:"/admin/role/addRoleAct",
+                type:"post",
+                data:{
+                    roleName:roleName,
+                    roleDesc:roleDesc,
+                    mids:mids
+                },
+                dataType:"json",
+                success: function(data) {
+
+                    if (data.code == 1) {
+                        layer.msg(data.msg, {
+                            shade:[0.2,'#fff'],
+                            time:1000,
+                        }, function () {
+                            // 关闭弹出层
+                            window.parent.location.reload();
+                            var iframeIndex = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(iframeIndex);
+
+                        });
+                    } else {
+                        layer.msg(data.msg, {
+                            shade:[0.2,'#fff'],
+                            time: 1000
+                        });
+                    }
+
+                }
+            });
+            return false;
+        });
+
+        //关闭
+        $("#closeBtn").click(function() {
+            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+            parent.layer.close(index); //再执行关
+        })
+
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>兼职管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/layui/lib/layui-v2.5.5/css/layui.css" media="all">
+    <link rel="stylesheet" href="/layui/css/public.css" media="all">
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+
+        <fieldset class="table-search-fieldset">
+            <legend>搜索信息</legend>
+            <div style="margin: 10px 10px 10px 10px">
+                <form class="layui-form layui-form-pane" action="">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">招聘者</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="uname" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">工作名称</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="name" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">审核状态</label>
+                            <div class="layui-input-inline">
+                                <select name="status" lay-verify="" lay-search="">
+                                    <option value="">所有</option>
+                                    <option value="0">审核成功</option>
+                                    <option value="1">审核中</option>
+                                    <option value="2">审核失败</option>
+                                    <option value="3">取消发布</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <button type="submit" class="layui-btn layui-btn-primary" lay-submit
+                                    lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 索
+                            </button>
+                        </div>
+
+                        <div class="layui-inline">
+                            <button type="reset" class="layui-btn layui-btn-primary" id="lay-reset"
+                                    lay-filter="data-reset-btn"><i class="layui-icon layui-icon-refresh"></i> 重 置
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </fieldset>
+
+        <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+
+        <script type="text/html" id="currentTableBar">
+            <a class="layui-btn layui-btn-xs data-count-edit" lay-event="pass"><i class="layui-icon layui-icon-ok"></i>通过</a>
+            <a class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="nopass"><i
+                    class="layui-icon layui-icon-close"></i>不通过</a>
+            <a class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="delete"><i
+                    class="layui-icon"></i>删除</a>
+        </script>
+
+    </div>
+</div>
+<script src="/layui/lib/layui-v2.5.5/layui.js" charset="utf-8"></script>
+<script type="text/html" id="typeTpl">
+    {{#  if(d.type == 'Tutoring'){ }}
+    家教
+    {{# } else if(d.type == 'waimai'){ }}
+    外卖
+    {{# } else if(d.type == 'express'){ }}
+    快递
+    {{# } else if(d.type == 'kefu'){ }}
+    客服
+    {{# } else if(d.type == 'xiaoshou'){ }}
+    销售
+    {{# } else if(d.type == 'others'){ }}
+    其他
+    {{#  } }}
+</script>
+<script type="text/html" id="placeTpl">
+    {{#  if(d.place == 'donghu'){ }}
+    东湖区
+    {{# } else if(d.place == 'xihu'){ }}
+    西湖区
+    {{# } else if(d.place == 'qingyunpu'){ }}
+    青云谱区
+    {{# } else if(d.place == 'wanli'){ }}
+    湾里区
+    {{# } else if(d.place == 'xinjian'){ }}
+    新建区
+    {{# } else if(d.place == 'nanchangxian'){ }}
+    南昌县
+    {{# } else if(d.place == 'jinxian'){ }}
+    进贤县
+    {{# } else if(d.place == 'anyi'){ }}
+    安义县
+    {{#  } }}
+</script>
+<script id="statusTpl" type="text/html">
+    {{#  if(d.status == 0){ }}
+    <button type="button" class="layui-btn layui-btn-xs layui-btn-normal">审核成功</button>
+    {{# } else if(d.status == 1){ }}
+    <button type="button" class="layui-btn layui-btn-xs layui-btn-warm">审核中</button>
+    {{# } else if(d.status == 2){ }}
+    <button type="button" class="layui-btn layui-btn-xs layui-btn-danger">审核失败</button>
+    {{# } else if(d.status == 3){ }}
+    <button type="button" class="layui-btn layui-btn-xs layui-btn-danger">取消发布</button>
+    {{#  } }}
+</script>
+<script th:inline="none">
+    layui.use(['form', 'table'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            table = layui.table;
+
+        table.render({
+            elem: '#currentTableId',
+            url: '/admin/job/allJobAct',
+            method:'post',
+            cols: [
+                [
+                    {field: 'id', title: 'ID', sort: true},
+                    {field: 'name', title: '工作名称', align: "center"},
+                    {field: 'uname', title: '招聘者', align: "center",templet: '<div>{{d.user.name}}</div>'},
+                    {field: 'type', title: '职位类型',templet: '#typeTpl', align: "center"},
+                    {field: 'place', title: '工作地点',templet: '#placeTpl',align: "center"},
+                    {field: 'salary', title: '薪水', align: "center"},
+                    {field: 'contact', title: '联系方式', align: "center"},
+                    {field: 'createtime',title: '创建时间',align: 'center'},
+                    {field: 'status', title: '申请状态', templet: '#statusTpl', align: "center"},
+                    {title: '操作', templet: '#currentTableBar', align: "center",width:230}
+                ]
+            ],
+            limits: [10, 15, 20, 25, 50, 100],
+            limit: 10,
+            page: true
+        });
+
+        // 监听搜索操作
+        form.on('submit(data-search-btn)', function (data) {
+            //执行搜索重载
+            table.reload('currentTableId', {
+                url: '/admin/job/searchJob'
+                , where: {
+                    uname: data.field.uname,
+                    name: data.field.name,
+                    status: data.field.status
+                }, //设定异步数据接口的额外参数
+                page: {
+                    curr: 1
+                }
+            }, 'data');
+            return false;
+        });
+
+        // 监听重置操作
+        $("#lay-reset").click(function (data) {
+
+            //执行重置重载
+            table.reload('currentTableId', {
+                url: '/admin/job/allJobAct'
+                , where: {}, //设定异步数据接口的额外参数
+                page: {
+                    curr: 1
+                }
+            });
+            $(".layui-form")[0].reset();
+            layui.form.render();
+            return false;
+        });
+
+        /**
+         * toolbar监听事件
+         */
+        table.on('tool(currentTableFilter)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'pass') {
+                var lock = false;
+                layer.confirm('确定审核通过？', function (index) {
+                    if (!lock) {
+                        lock = true;
+                        $.ajax({
+                            url: "/admin/job/statusSucessAct",
+                            type: "post",
+                            data: {
+                                status: data.status,
+                                id: data.id
+                            },
+                            dataType: "json",
+                            success: function (data) {
+                                /*console.log(data)*/
+                                if (data.code == 1) {
+                                    layer.msg(data.msg, {
+                                        shade: [0.2, '#fff'],
+                                        time: 1000
+                                    },function() {
+                                        table.reload('currentTableId', {
+                                            url: '/admin/job/allJobAct'
+                                            , where: {}, //设定异步数据接口的额外参数
+                                            page: {
+                                                curr: 1
+                                            }
+                                        });
+                                    });
+                                } else {
+                                    layer.msg(data.msg, {
+                                        shade: [0.2, '#fff'],
+                                        time: 1000
+                                    });
+                                }
+
+                            }
+                        });
+                    }
+                    layer.close(index);
+                });
+                return false;
+            } else if (obj.event === 'nopass') {
+                var lock = false;
+                layer.confirm('确定不通过审核吗？', function (index) {
+                    if (!lock) {
+                        lock = true;
+                        $.ajax({
+                            url: "/admin/job/statusfailAct",
+                            type: "post",
+                            data: {
+                                status: data.status,
+                                id: data.id
+                            },
+                            dataType: "json",
+                            success: function (data) {
+                                /*console.log(data)*/
+                                if (data.code == 1) {
+                                    layer.msg(data.msg, {
+                                        shade: [0.2, '#fff'],
+                                        time: 1000
+                                    },function() {
+                                        table.reload('currentTableId', {
+                                            url: '/admin/job/allJobAct'
+                                            , where: {}, //设定异步数据接口的额外参数
+                                            page: {
+                                                curr: 1
+                                            }
+                                        });
+                                    });
+                                } else {
+                                    layer.msg(data.msg, {
+                                        shade: [0.2, '#fff'],
+                                        time: 1000
+                                    });
+                                }
+
+                            }
+                        });
+                    }
+                    layer.close(index);
+                });
+                return false;
+            }else if (obj.event === 'delete') {
+                var lock = false;
+                layer.confirm('确定删除吗？', function (index) {
+                    if (!lock) {
+                        lock = true;
+                        $.ajax({
+                            url: "/admin/job/deleteJobAct",
+                            type: "post",
+                            data: {
+                                status: data.status,
+                                id: data.id
+                            },
+                            dataType: "json",
+                            success: function (data) {
+                                /*console.log(data)*/
+                                if (data.code == 1) {
+                                    layer.msg(data.msg, {
+                                        shade: [0.2, '#fff'],
+                                        time: 1000
+                                    },function() {
+                                        table.reload('currentTableId', {
+                                            url: '/admin/job/allJobAct'
+                                            , where: {}, //设定异步数据接口的额外参数
+                                            page: {
+                                                curr: 1
+                                            }
+                                        });
+                                    });
+                                } else {
+                                    layer.msg(data.msg, {
+                                        shade: [0.2, '#fff'],
+                                        time: 1000
+                                    });
+                                }
+
+                            }
+                        });
+                    }
+                    layer.close(index);
+                });
+                return false;
+            }
+        });
+
+
+
+    });
+</script>
+
+</body>
+</html>

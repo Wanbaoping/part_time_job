@@ -1,0 +1,39 @@
+.new{
+    margin-top: 20px;
+    background-color: #fff;
+    padding: 20px 30px 0px 30px;
+    transition: All 0.3s ease-in-out;
+    -webkit-transition: All 0.3s ease-in-out;
+    -moz-transition: All 0.3s ease-in-out;
+    -o-transition: All 0.3s ease-in-out;
+}
+.new:hover {
+    transform: scale(1.05);
+    -webkit-transform: scale(1.05);
+    -moz-transform: scale(1.05);
+    -o-transform: scale(1.05);
+    -ms-transform: scale(1.05);
+}
+.desc{
+    float: left;
+    margin: 30px;
+}
+
+.paging{
+    text-align: center;
+}
+.pagination>li>a:hover{
+    background-color: #1E9FFF;
+}
+.pagination>.active>a,
+.pagination>.active>a:focus,
+.pagination>.active>a:hover,
+.pagination>.active>span,
+.pagination>.active>span:focus,
+.pagination>.active>span:hover {
+    z-index: 3;
+    color: #fff;
+    cursor: default;
+    background-color: #1E9FFF;
+    border-color: #1E9FFF;
+}

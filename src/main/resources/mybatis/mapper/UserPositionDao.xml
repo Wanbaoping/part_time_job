@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.baoge.dao.UserPositionDao">
+    <select id="getAllApplication" resultType="com.baoge.queryvo.Application">
+        select a.id as id,a.status as status, a.user_id userid,j.name as job_name,j.id as job_id,a.createtime as createtime,j.type as job_type,j.place as job_place,
+        j.salary as job_salary,u1.id as recruiter_id
+        from application a, user u,job j,user u1
+        where a.user_id=u.id and a.job_id=j.id and a.recruiter_id =u1.id and a.user_id=#{id}
+    </select>
+    <select id="getPassApplication" resultType="com.baoge.queryvo.Application">
+        select a.id as id,a.status as status, a.user_id userid,j.name as job_name,j.id as job_id,a.createtime as createtime,j.type as job_type,j.place as job_place,
+        j.salary as job_salary,u1.id as recruiter_id
+        from application a, user u,job j,user u1
+        where a.user_id=u.id and a.job_id=j.id and a.recruiter_id =u1.id and a.user_id=#{id} and a.status=0
+    </select>
+    <select id="getCheckingApplication"  resultType="com.baoge.queryvo.Application">
+        select a.id as id,a.status as status, a.user_id userid,j.name as job_name,j.id as job_id,a.createtime as createtime,j.type as job_type,j.place as job_place,
+        j.salary as job_salary,u1.id as recruiter_id
+        from application a, user u,job j,user u1
+        where a.user_id=u.id and a.job_id=j.id and a.recruiter_id =u1.id and a.user_id=#{id} and a.status=1
+    </select>
+    <select id="getnoPassApplication" resultType="com.baoge.queryvo.Application">
+         select a.id as id,a.status as status, a.user_id userid,j.name as job_name,j.id as job_id,a.createtime as createtime,j.type as job_type,j.place as job_place,
+        j.salary as job_salary,u1.id as recruiter_id
+        from application a, user u,job j,user u1
+        where a.user_id=u.id and a.job_id=j.id and a.recruiter_id =u1.id and a.user_id=#{id} and a.status=2
+    </select>
+
+</mapper>

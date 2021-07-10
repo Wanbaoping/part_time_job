@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>修改基本信息</title>
+</head>
+<body>
+<div class="col-md-offset-1 col-md-12" style="background-color: white;">
+    <div class="noti-header">修改资料</div>
+    <div class="empty-line"></div>
+    <div id="noti-list-inner">
+        <div class="text-center">
+            <div class="layui-form layuimini-form">
+                <div class="layui-form-item">
+                    <label class="layui-form-label myrequired">用户名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="username" lay-verify="required" lay-reqtext="用户名不能为空" placeholder="请输入用户名" th:value="${user.username}" class="layui-input" >
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label myrequired">姓名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="name" lay-verify="required" lay-reqtext="姓名不能为空" placeholder="请输入姓名" th:value="${user.name}" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label myrequired">email</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="email" lay-verify="required|email"  placeholder="请输入邮件" th:value="${user.email}" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label myrequired">phone</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="phone" lay-verify="required|phone"  placeholder="请输入电话" th:value="${user.phone}" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label myrequired">性别</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="sex" value="0" title="男" th:checked="${user.sex == 0}">
+                        <input type="radio" name="sex" value="1" title="女" th:checked="${user.sex == 1}">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <input type="hidden" name="id" th:value="${user.id}">
+                        <button class="layui-btn" lay-submit lay-filter="saveBtn">确认保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="empty-row"></div>
+    </div>
+</div>
+
+<script>
+    layui.use(['form','layer'], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            $ = layui.$;
+            form.render();
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+
+            $.ajax({
+                url:"/dashboard/personal/editUserinfoAct",
+                type:"post",
+                data:data.field,
+                dataType:"json",
+                success: function(data) {
+                    var index;
+                    if (data.code == 1) {
+                        layer.msg(data.msg,{
+                            shade:[0.2,'#fff'],
+                            time:1000,
+                        })
+                    } else {
+                        layer.msg(data.msg,{
+                            shade:[0.2,'#fff'],
+                            time: 1000
+                        })
+                    }
+
+                }
+            });
+            return false;
+        });
+
+    });
+</script>
+</body>
+</html>

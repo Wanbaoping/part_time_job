@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>发布兼职</title>
+    <style type="text/css">
+        .myrequired:after{
+            content: '*';
+            color: red;
+            position: absolute;
+            margin-left: 4px;
+            font-weight: bold;
+            line-height: 1.8em;
+            top: 6px;
+            right: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="col-md-offset-1 col-md-12" style="background-color: white;">
+    <div class="noti-header">发布兼职</div>
+    <div class="empty-line"></div>
+    <div id="noti-list-inner">
+        <div class="text-center">
+            <div class="layui-form layuimini-form" lay-filter="releaseJob">
+                <div class="layui-form-item">
+                    <label class="layui-form-label myrequired" style="width: 100px">兼职名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="name" lay-verify="required" lay-reqtext="兼职名称不能为空" placeholder="例如外卖" class="layui-input ">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label myrequired" style="width: 100px">兼职类型</label>
+                    <div class="layui-input-block">
+                        <select name="type" lay-filter="type">
+                            <option value="Tutoring" selected>家教</option>
+                            <option value="waimai">外卖</option>
+                            <option value="express">快递</option>
+                            <option value="kefu">客服</option>
+                            <option value="xiaoshou">销售</option>
+                            <option value="others">其他</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label myrequired" style="width: 100px">兼职地点</label>
+                    <div class="layui-input-block">
+                        <select name="place" lay-filter="place">
+                            <option value="donghu" selected>东湖区</option>
+                            <option value="xihu">西湖区</option>
+                            <option value="qingyunpu">青云谱区</option>
+                            <option value="wanli">湾里区</option>
+                            <option value="xinjian">新建区</option>
+                            <option value="nanchangxian">南昌县</option>
+                            <option value="jinxian">进贤县</option>
+                            <option value="anyi">安义县</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label myrequired" style="width: 100px">所需人数</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="personnum" lay-verify="required|number" lay-reqtext="所需人数不能为空" placeholder="填数字，例如3" class="layui-input ">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label myrequired">薪资</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="salary" lay-verify="required" lay-reqtext="薪资不能为空" placeholder="例如：100/天" class="layui-input ">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label myrequired" style="width: 100px">联系电话</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="contact" lay-verify="required|phone" lay-reqtext="联系电话不能为空" placeholder="例如:15179760987" class="layui-input ">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label myrequired"style="width: 100px">详细描述</label>
+                    <div class="layui-input-block">
+                        <textarea placeholder="描述兼职的详细工作时间、地点、要求等" class="layui-textarea" name="information" lay-verify="required" lay-reqtext="详细描述不能为空"></textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <input type="hidden" name="user_id" th:value="${id}">
+                        <button class="layui-btn" lay-submit lay-filter="saveBtn" id="savebtn">确认保存</button>
+                    </div>
+                </div>
+            </div>
+            <div class="empty-row"></div>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+    layui.use(['form', 'layer'], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            $ = layui.$;
+            form.render();
+        if ([[${session.cardImage}]] == null) {
+            layer.msg('请先进行商家认证！')
+            $("#savebtn").attr('disabled',true).addClass("layui-btn-disabled");
+            return false;
+        }
+
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+            $.ajax({
+                url: "/dashboard/personal/releaseJobAct",
+                type: "post",
+                data: data.field,
+                dataType: "json",
+                success: function (data) {
+                    var index;
+                    if (data.code == 0) {
+                        layer.msg(data.msg, {
+                            shade: [0.2, '#fff'],
+                            time: 1000,
+                        },function () {
+                            window.location.href="/dashboard/personal/"
+                        })
+                    } else {
+                        layer.msg(data.msg, {
+                            shade: [0.2, '#fff'],
+                            time: 1000
+                        })
+                    }
+
+                }
+            });
+            return false;
+        });
+    });
+</script>
+</body>
+</html>
